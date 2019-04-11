@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class FetchNews {
     private String jsonURL = "https://newsapi.org/v2/top-headlines?country=us&apiKey=3e47c4c204e14e42921a6d8efae3f9e0";
     private final int jsoncode = 1;
-    ArrayList<NewsDataModel> newsDataModelArrayList;
+    private ArrayList<NewsDataModel> newsDataModelArrayList;
     private NewsAdapter newsAdapter;
     private static ProgressDialog mProgressDialog;
     private Context context;
@@ -45,7 +45,7 @@ public class FetchNews {
 
 
             protected String doInBackground(Void... params) {
-                BufferedReader bufferedReader = null;
+                BufferedReader bufferedReader;
                 try {
                     URL url = new URL(jsonURL);
                     Log.d("hello", String.valueOf(url));
@@ -76,7 +76,7 @@ public class FetchNews {
         }.execute();
     }
 
-    public void onTaskCompleted(String response, int serviceCode) {
+    private void onTaskCompleted(String response, int serviceCode) {
         Log.d("responsejson", response.toString());
         switch (serviceCode) {
             case jsoncode:
