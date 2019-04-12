@@ -10,6 +10,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +26,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FetchNews {
     private String jsonURL = "https://newsapi.org/v2/top-headlines?country=us&apiKey=3e47c4c204e14e42921a6d8efae3f9e0";
@@ -36,44 +45,30 @@ public class FetchNews {
     @SuppressLint("StaticFieldLeak")
     public void fetchNews() {
 
-        new AsyncTask<Void, Void, String>(){
+        showSimpleProgressDialog( context, "Loading...","Fetching News Please Wait...",false);
 
-            protected void onPreExecute() {
-                super.onPreExecute();
-                showSimpleProgressDialog( context, "Loading...","Fetching News Please Wait...",false);
+        StringRequest stringRequest = new StringRequest(jsonURL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+
+                Log.d("neewwss",response);
+                onTaskCompleted(response,jsoncode);
+
+
             }
-
-
-            protected String doInBackground(Void... params) {
-                BufferedReader bufferedReader;
-                try {
-                    URL url = new URL(jsonURL);
-                    Log.d("hello", String.valueOf(url));
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    con.setUseCaches(true);
-                    StringBuilder sb = new StringBuilder();
-
-                    bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
-                    String json;
-                    while ((json = bufferedReader.readLine()) != null) {
-                        sb.append(json + "\n");
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        removeSimpleProgressDialog();
+                        Toast.makeText(context,"something went wrong while sending request",Toast.LENGTH_LONG).show();
                     }
+                });
 
-                    return sb.toString().trim();
 
-                } catch (Exception e) {
-                    return null;
-                }
-
-            }
-            protected void onPostExecute(String result) {
-                //do something with response
-                super.onPostExecute(result);
-                Log.d("newwwss",result);
-                onTaskCompleted(result,jsoncode);
-            }
-        }.execute();
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
     }
 
     private void onTaskCompleted(String response, int serviceCode) {
